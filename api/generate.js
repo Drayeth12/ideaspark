@@ -8,7 +8,6 @@ export default async function handler(req, res) {
 
   const { hobby, workplace, skill } = req.body;
 
-  // Random focus so same input gives different ideas every time
   const angles = [
     "Focus on a GenLayer contract that verifies or fact-checks real world information.",
     "Focus on a GenLayer contract that resolves disputes between two people automatically.",
@@ -24,9 +23,9 @@ export default async function handler(req, res) {
   if (workplace) context.push(`industry: ${workplace}`);
 
   const skillGuide =
-    skill === 'Beginner'     ? 'The idea must be very simple — just 1 contract method, no complex logic, something a total beginner can build in one day.' :
-    skill === 'Developer'    ? 'The idea can be technical with multiple contract methods and real data sources.' :
-                               'The idea should be moderately complex — clear use case, simple contract structure.';
+    skill === 'Beginner'  ? 'The idea must be very simple — just 1 contract method, buildable in one day by a total beginner.' :
+    skill === 'Developer' ? 'The idea can be technical with multiple contract methods and real data sources.' :
+                            'The idea should be moderately complex with a clear use case.';
 
   const prompt = `You are a GenLayer project idea generator. GenLayer is a blockchain where Intelligent Contracts use built-in AI to make smart decisions — like verifying facts, resolving disputes, scoring content, or rewarding users automatically.
 
@@ -35,11 +34,7 @@ ${angle}
 ${skillGuide}
 
 Generate exactly 3 GenLayer Intelligent Contract project ideas tailored to this person's background.
-Each idea must:
-- Be directly related to their hobby or industry
-- Use GenLayer's AI feature (gl.exec_prompt) in a clear simple way
-- Feel fun and personal, not generic or corporate
-- Be something real people would actually use
+Each idea must be directly related to their hobby or industry, use GenLayer's AI feature, and feel fun and personal.
 
 Return ONLY valid JSON, no markdown:
 {
@@ -47,38 +42,37 @@ Return ONLY valid JSON, no markdown:
     {
       "title": "Short catchy name",
       "description": "1 simple sentence — what does it do?",
-      "contract_feature": "1 sentence — what does gl.exec_prompt() do inside this contract?"
+      "contract_feature": "1 sentence — what does the AI inside the contract actually do?"
     },
     {
       "title": "Short catchy name",
       "description": "1 simple sentence — what does it do?",
-      "contract_feature": "1 sentence — what does gl.exec_prompt() do inside this contract?"
+      "contract_feature": "1 sentence — what does the AI inside the contract actually do?"
     },
     {
       "title": "Short catchy name",
       "description": "1 simple sentence — what does it do?",
-      "contract_feature": "1 sentence — what does gl.exec_prompt() do inside this contract?"
+      "contract_feature": "1 sentence — what does the AI inside the contract actually do?"
     }
   ]
 }`;
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01'
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'llama3-8b-8192',
         max_tokens: 800,
         messages: [{ role: 'user', content: prompt }]
       })
     });
 
     const data   = await response.json();
-    const raw    = data.content.map(i => i.text || '').join('');
+    const raw    = data.choices[0].message.content;
     const clean  = raw.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
 
