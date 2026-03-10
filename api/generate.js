@@ -71,15 +71,26 @@ Return ONLY valid JSON, no markdown:
       })
     });
 
-    const data   = await response.json();
-    const raw    = data.choices[0].message.content;
-    const clean  = raw.replace(/```json|```/g, '').trim();
+    const data = await response.json();
+
+    // Log full Groq response for debugging
+    console.log('Groq response status:', response.status);
+    console.log('Groq response body:', JSON.stringify(data));
+
+    // Check if Groq returned an error
+    if (!response.ok || data.error) {
+      console.error('Groq API error:', data.error || data);
+      return res.status(500).json({ error: 'Groq API error: ' + (data.error?.message || 'Unknown error') });
+    }
+
+    const raw   = data.choices[0].message.content;
+    const clean = raw.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
 
     res.status(200).json(parsed);
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to generate ideas' });
+    console.error('Handler error:', err.message);
+    res.status(500).json({ error: err.message });
   }
 }
