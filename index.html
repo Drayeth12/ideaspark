@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IdeaSpark — GenLayer Project Idea Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f2eb;
+      --ink: #0f0e0c;
+      --muted: #8a8780;
+      --accent: #d4541a;
+      --accent2: #1a6ed4;
+      --card: #ffffff;
+      --border: rgba(15,14,12,0.1);
+      --shadow: 0 2px 24px rgba(15,14,12,0.08);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'DM Mono', monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.4rem 3rem;
+      border-bottom: 1px solid var(--border);
+      animation: up 0.5s ease both;
+    }
+
+    .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.05rem; letter-spacing: -0.02em; }
+    .logo span { color: var(--accent); }
+
+    .nav-pill {
+      font-size: 0.58rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 0.25rem 0.8rem;
+      border-radius: 999px;
+    }
+
+    .hero {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 5rem 3rem 2.5rem;
+      animation: up 0.6s ease 0.1s both;
+    }
+
+    .eyebrow {
+      font-size: 0.62rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1.2rem;
+    }
+    .eyebrow::before { content: ''; width: 20px; height: 1px; background: var(--accent); }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.6rem, 6.5vw, 5rem);
+      font-weight: 800;
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+      margin-bottom: 1.4rem;
+    }
+    h1 .serif { font-family: 'Instrument Serif', serif; font-style: italic; font-weight: 400; color: var(--accent); }
+    .hero p { font-size: 0.8rem; color: var(--muted); line-height: 1.8; max-width: 460px; }
+
+    .form-wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 3rem 2rem;
+      animation: up 0.7s ease 0.2s both;
+    }
+
+    .skill-label { font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.6rem; }
+
+    .skill-toggle { display: flex; gap: 0.5rem; margin-bottom: 1.4rem; }
+
+    .skill-btn {
+      padding: 0.45rem 1.1rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: auto;
+      text-transform: none;
+      box-shadow: none;
+    }
+    .skill-btn:hover:not(:disabled) { color: var(--ink); border-color: var(--ink); background: transparent; transform: none; }
+    .skill-btn.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+    .skill-btn.active:hover:not(:disabled) { background: var(--accent); border-color: var(--accent); }
+
+    .inputs-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+
+    .field label { display: block; font-size: 0.58rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.45rem; }
+
+    .field input {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.8rem 1rem;
+      color: var(--ink);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.82rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-shadow: var(--shadow);
+    }
+    .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(212,84,26,0.08); }
+    .field input::placeholder { color: #c5c2bc; }
+
+    .generate-btn {
+      width: 100%;
+      padding: 0.9rem;
+      background: var(--ink);
+      color: var(--bg);
+      border: none;
+      border-radius: 10px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      box-shadow: var(--shadow);
+    }
+    .generate-btn:hover:not(:disabled) { background: var(--accent); transform: translateY(-1px); }
+    .generate-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+    .note { font-size: 0.6rem; color: var(--muted); text-align: center; margin-top: 0.7rem; letter-spacing: 0.05em; }
+
+    .loading { display: none; text-align: center; padding: 2rem 0 0.5rem; }
+    .loading.on { display: block; }
+
+    .spinner {
+      width: 26px; height: 26px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+      margin: 0 auto 0.7rem;
+    }
+    .loading p { font-size: 0.63rem; color: var(--muted); letter-spacing: 0.08em; }
+
+    .error {
+      display: none;
+      background: rgba(212,84,26,0.05);
+      border: 1px solid rgba(212,84,26,0.2);
+      border-radius: 8px;
+      padding: 0.7rem 1rem;
+      font-size: 0.72rem;
+      color: var(--accent);
+      margin-top: 0.8rem;
+      text-align: center;
+    }
+    .error.on { display: block; }
+
+    .results { display: none; max-width: 860px; margin: 0 auto; padding: 0 3rem 5rem; }
+    .results.on { display: block; }
+
+    .results-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1.8rem;
+    }
+
+    .results-title { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; letter-spacing: -0.02em; }
+    .results-meta { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.05em; }
+
+    .ideas-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
+
+    .idea-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.6rem;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      animation: cardIn 0.5s ease both;
+    }
+    .idea-card:nth-child(1){ animation-delay:0.05s }
+    .idea-card:nth-child(2){ animation-delay:0.15s }
+    .idea-card:nth-child(3){ animation-delay:0.25s }
+
+    .idea-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+    .idea-card:hover { transform: translateY(-4px); box-shadow: 0 10px 36px rgba(15,14,12,0.13); }
+    .idea-card:hover::before { transform: scaleX(1); }
+
+    .idea-num { font-size: 0.52rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.7rem; }
+    .idea-title { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 0.75rem; }
+    .idea-desc { font-size: 0.72rem; color: var(--muted); line-height: 1.75; margin-bottom: 1rem; }
+
+    .idea-contract {
+      font-size: 0.66rem;
+      color: var(--accent2);
+      line-height: 1.65;
+      padding-top: 0.8rem;
+      border-top: 1px solid var(--border);
+    }
+    .idea-contract strong {
+      display: block;
+      font-size: 0.52rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.3rem;
+      font-weight: 400;
+    }
+
+    footer { text-align: center; padding: 1.8rem; font-size: 0.58rem; color: var(--muted); letter-spacing: 0.1em; border-top: 1px solid var(--border); }
+    footer b { color: var(--ink); font-weight: 500; }
+
+    @keyframes up { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes cardIn { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes spin { to{transform:rotate(360deg)} }
+
+    @media(max-width:680px) {
+      nav,.hero,.form-wrap,.results { padding-left:1.5rem; padding-right:1.5rem; }
+      h1 { font-size:2.6rem; }
+      .inputs-row { grid-template-columns:1fr; }
+      .ideas-grid { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Idea<span>Spark</span></div>
+  <div class="nav-pill">Powered by GenLayer</div>
+</nav>
+
+<section class="hero">
+  <div class="eyebrow">GenLayer Community Tool</div>
+  <h1>Your next project<br/><span class="serif">starts here</span></h1>
+  <p>Tell us your hobby, industry, and skill level. Get 3 tailored ideas for GenLayer Intelligent Contracts you can actually build.</p>
+</section>
+
+<section class="form-wrap">
+  <div class="skill-label">Skill Level</div>
+  <div class="skill-toggle">
+    <button class="skill-btn active" onclick="setSkill(this,'Beginner')">Beginner</button>
+    <button class="skill-btn" onclick="setSkill(this,'Intermediate')">Intermediate</button>
+    <button class="skill-btn" onclick="setSkill(this,'Developer')">Developer</button>
+  </div>
+
+  <div class="inputs-row">
+    <div class="field">
+      <label>Hobby / Interest (optional)</label>
+      <input id="hobby" type="text" placeholder="e.g. Music, Gaming, Cooking"/>
+    </div>
+    <div class="field">
+      <label>Workplace / Industry (optional)</label>
+      <input id="workplace" type="text" placeholder="e.g. Finance, Healthcare"/>
+    </div>
+  </div>
+
+  <button class="generate-btn" id="btn" onclick="generate()">Generate My Ideas</button>
+  <div class="note">Fill in at least one field to get started</div>
+
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p>Generating your GenLayer ideas...</p>
+  </div>
+
+  <div class="error" id="error"></div>
+</section>
+
+<section class="results" id="results">
+  <div class="results-header">
+    <div class="results-title">Your Ideas</div>
+    <div class="results-meta" id="resultsMeta"></div>
+  </div>
+  <div class="ideas-grid" id="ideasGrid"></div>
+</section>
+
+<footer>Built on <b>GenLayer</b> Intelligent Contracts &mdash; IdeaSpark v1.0</footer>
+
+<script>
+  let selectedSkill = 'Beginner';
+
+  function setSkill(el, val) {
+    selectedSkill = val;
+    document.querySelectorAll('.skill-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  async function generate() {
+    const hobby     = document.getElementById('hobby').value.trim();
+    const workplace = document.getElementById('workplace').value.trim();
+
+    if (!hobby && !workplace) {
+      showError('Please fill in at least your hobby or workplace.');
+      return;
+    }
+
+    setLoading(true);
+    hide('results');
+    hide('error');
+
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hobby, workplace, skill: selectedSkill })
+      });
+
+      const parsed = await res.json();
+      if (parsed.error) throw new Error(parsed.error);
+
+      setLoading(false);
+      render(parsed, hobby, workplace);
+
+    } catch(e) {
+      setLoading(false);
+      showError('Could not generate ideas. Please try again.');
+      console.error(e);
+    }
+  }
+
+  function render(data, hobby, workplace) {
+    const parts = [];
+    if (hobby)     parts.push(hobby);
+    if (workplace) parts.push(workplace);
+    parts.push(selectedSkill);
+    document.getElementById('resultsMeta').textContent = parts.join(' · ');
+
+    const grid = document.getElementById('ideasGrid');
+    grid.innerHTML = '';
+
+    (data.ideas || []).forEach((idea, i) => {
+      const card = document.createElement('div');
+      card.className = 'idea-card';
+      card.innerHTML = `
+        <div class="idea-num">Idea 0${i + 1}</div>
+        <div class="idea-title">${idea.title}</div>
+        <div class="idea-desc">${idea.description}</div>
+        <div class="idea-contract">
+          <strong>Intelligent Contract Feature</strong>
+          ${idea.contract_feature}
+        </div>`;
+      grid.appendChild(card);
+    });
+
+    show('results');
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function setLoading(on) {
+    document.getElementById('loading').classList.toggle('on', on);
+    document.getElementById('btn').disabled = on;
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('error');
+    el.textContent = msg;
+    el.classList.add('on');
+  }
+
+  function show(id) { document.getElementById(id).classList.add('on'); }
+  function hide(id) { document.getElementById(id).classList.remove('on'); }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') generate(); });
+</script>
+</body>
+</html>
